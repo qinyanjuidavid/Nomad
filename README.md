@@ -1,0 +1,6 @@
+# Learning-GeoDjango.
+Db used--> Postgis
+install the dependancies using the requirements.txt-->pip install -r requirements.txt
+The environment is the virtualenvwrapper...
+#In this project i was learning from a tutorial but i am trying to master the full concept of implementing the GeoDjango....
+Expect my project soon!!!
