@@ -1,0 +1,60 @@
+{%extends 'reporter/base.html'%}
+{%load static%}
+{%load leaflet_tags%}
+{%leaflet_js%}
+{%leaflet_css%}
+{%block content%}
+<style type='text/css'>
+  #gis {width : 100%; height: 400px;}
+  </style>
+  <script src="{%static 'dist/leaflet.ajax.js'%}"></script>
+  <link rel="stylesheet" href="{%static 'leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css'%}">
+  <script src="{%static 'leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.js'%}"></script>
+  <link src="{%static 'routing/leaflet-routing-machine.css'%}">
+      <script src="{%static 'routing/routing.js'%}"></script>
+<h1>Day Codes</h1><br>
+<script>
+  function our_layers(map,options){
+    var osm="http://{s}.title.openstreetmap.org/{z}{y}{x}.png"
+    var datasets=new L.GeoJSON.AJAX("{%url "reporter:county"%}",{
+      style:function colors(feature){
+        switch(feature.properties.counties){
+          case 'WAJIR':
+          return{
+            color:'orange',
+            fillOpacity:0.8,
+          }
+        }
+      },
+      onEachFeature: function(feature,layer){
+        layer.bindPopup(feature.properties.name.toString())
+      }
+    });
+    var points= new L.GeoJSON.AJAX("{%url "reporter:home"%}",{
+      onEachFeature: function(feature,layer){
+        layer.bindPopup(feature.properties.name.toString())
+      }
+    });
+    datasets.addTo(map);
+    points.addTo(map);
+    var baselayers{
+      'OSM':osm
+    }
+    var groupedOverlays = {
+  "Layers": {
+    "counties": datasets,
+    "incidences": points
+  }
+};
+
+L.control.groupedLayers(baseLayers, groupedOverlays).addTo(map);
+L.Routing.control({
+  waypoints:[
+  L.latLng(57.74,11,94),
+  L.latLng(57.6792,11.949)
+  ]
+}).addTo(map);
+  }
+  </script>
+{%leaflet_map "gis" callback="window.our_layers"%}
+{%endblock%}
