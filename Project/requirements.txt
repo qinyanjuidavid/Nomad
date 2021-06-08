@@ -19,7 +19,7 @@ leaflet==0.0.3
 lxml==4.5.0
 MarkupSafe==1.1.1
 ogr==0.11.0
-Pillow==7.0.0
+Pillow==8.2.0
 postgis==1.0.4
 proj==0.1.0
 psycopg2==2.8.4
