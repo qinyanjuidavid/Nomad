@@ -1,5 +1,6 @@
-import dj_database_url
 import os
+
+import dj_database_url
 from src.settings.local import *
 
 DEBUG = False
@@ -11,10 +12,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'Nomad',
-        'USER':'postgres',
-        'PASSWORD':'letmein20116199623',
-        'HOST':'localhost',
-        'PORT':5432
+        'USER': 'postgres',
+        'PASSWORD': 'letmein20116199623',
+        'HOST': 'localhost',
+        'PORT': 5432
     }
 }
 CORS_ALLOWED_ORIGINS = [

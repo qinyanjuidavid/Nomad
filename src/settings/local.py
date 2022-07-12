@@ -3,7 +3,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -43,6 +42,7 @@ INSTALLED_APPS = [
     # local apps
     'modules.accounts.apps.AccountsConfig',
     'modules.pastoral.apps.PastoralConfig',
+    'modules.api.apps.ApiConfig',
 ]
 
 PHONENUMBER_DB_FORMAT = "NATIONAL"
@@ -96,10 +96,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'GeoDjango',
-        'USER':'postgres',
-        'PASSWORD':'kinyanjuid29',
-        'HOST':'localhost',
-        'PORT':5432
+        'USER': 'postgres',
+        'PASSWORD': 'kinyanjuid29',
+        'HOST': 'localhost',
+        'PORT': 5432
     }
 }
 
@@ -153,9 +153,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LEAFLET_CONFIG={
-'DEFAULT':(0.032,38.63),
-'DEFAULT_ZOOM':5,
-'MAX_ZOOM':20,
-'MIN_ZOOM':3,
+LEAFLET_CONFIG = {
+    # 'DEFAULT':(0.032,38.63),
+    'DEFAULT_CENTER': (-3.87, 178.59),
+    # 'DEFAULT_ZOOM':5,
+    # 'MAX_ZOOM':20,
+    # 'MIN_ZOOM':3,
 }

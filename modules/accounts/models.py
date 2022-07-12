@@ -1,11 +1,12 @@
 from django.contrib.auth import validators
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.contrib.gis.db import models as gis_models
 from django.db import models
 from django.utils.translation import gettext as _
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
-from django.contrib.gis.db import models as gis_models
+
 
 class TrackingModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,21 +14,25 @@ class TrackingModel(models.Model):
 
     class Meta:
         abstract = True
+
+
 class Counties(TrackingModel):
-    fid=models.FloatField()
-    objectid=models.FloatField()
-    code_id=models.FloatField()
-    name=models.CharField(max_length=70)
-    code=models.CharField(max_length=3)
-    shape_leng=models.FloatField()
-    shape_area=models.FloatField()
-    area=models.FloatField()
-    geom=gis_models.MultiPolygonField(srid=4326)
+    fid = models.FloatField()
+    objectid = models.FloatField()
+    code_id = models.FloatField()
+    name = models.CharField(max_length=70)
+    code = models.CharField(max_length=3)
+    shape_leng = models.FloatField()
+    shape_area = models.FloatField()
+    area = models.FloatField()
+    geom = gis_models.MultiPolygonField(srid=4326)
 
     def __str__(self):
         return self.name
+
     class Meta:
-        verbose_name_plural="Counties"
+        verbose_name_plural = "Counties"
+
 
 class CustomManager(BaseUserManager):
     def create_user(self, email, username, password=None, is_active=True, is_admin=False, is_staff=False, role=""):
@@ -63,6 +68,7 @@ class CustomManager(BaseUserManager):
             is_staff=True, is_admin=True, role="Administrator"
         )
         return user
+
 
 class User(AbstractBaseUser, TrackingModel):
     username_validator = UnicodeUsernameValidator()
@@ -120,32 +126,43 @@ class User(AbstractBaseUser, TrackingModel):
     @property
     def admin(self):
         return self.admin
+
+
 class Profile(models.Model):
     gender_choices = (
         ('Male', 'Male'),
         ('Female', 'Female'),
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
-    county= models.ForeignKey(Counties, on_delete=models.DO_NOTHING)
+    county = models.ForeignKey(Counties, on_delete=models.DO_NOTHING,
+                               blank=True, null=True)
     bio = models.TextField(_('bio'), blank=True, null=True)
     gender = models.CharField(_('gender'), choices=gender_choices,
                               max_length=20, default="Male"
                               )
     date_of_birth = models.DateField(_('date of birth'), blank=True, null=True)
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
+    profile_picture = models.ImageField(
+        _("profile picture"), upload_to="picture/%y/%m/%d",
+        default="default.png")
 
     def __str__(self):
         return self.user.username
+
     class Meta:
         abstract = True
 
+
 class Nomad(Profile):
-    location=gis_models.PointField(srid=4326)
-    # objects=gis_models.GeoManager()
+    point = gis_models.PointField(srid=4326, blank=True,
+                                  null=True)
+
     class Meta:
         verbose_name_plural = "Nomads"
 
+
 class Administrator(Profile):
     pass
+
     class Meta:
         verbose_name_plural = "Administrators"
