@@ -95,12 +95,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "src.wsgi.application"
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 DB_USERNAME = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
 DB_DATABASE = os.environ.get("POSTGRES_DB")
@@ -122,7 +116,7 @@ if DB_IS_AVAIL:
             "PORT": DB_PORT,
         }
     }
-print(DATABASES)
+
 
 if DEBUG_MODE == "1":
     import dj_database_url
@@ -142,6 +136,14 @@ if DEBUG_MODE == "1":
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = 1000000
     SECURE_FRAME_DENY = True
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
 
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
 
