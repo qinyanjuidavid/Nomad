@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: src:1.0
+    environment:
+      - PORT=8020
+    env_file:
+      - .env
+    ports:
+      - "8020:8020"
+    command: sh -c "chmod +x /app/migrate.sh && /app/migrate.sh && /app/collectstatic.sh && /app/entrypoint.sh"
+    depends_on:
+      - db
+      - redis_db
+      - pgadmin
+    volumes:
+      - staticfiles:/app/staticfiles/
+    container_name: trydocker-web
+  db:
+    image: postgres
+    restart: always
+    command: -p 5433
+    env_file:
+      - .env
+    environment:
+      - .env
+    expose:
+      - 5433
+    ports:
+      - "5433:5433"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+  redis_db:
+    image: redis
+    restart: always
+    expose:
+      - 6388
+    ports:
+      - "6388:6388"
+    volumes:
+      - redis_data:/data
+    entrypoint: redis-server --appendonly yes --port 6380
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "5051:80"
+    env_file:
+      - .env
+    environment:
+      - .env
+      # PGADMIN_DEFAULT_EMAIL: davidkinyanjui052@gmail.com
+      # PGADMIN_DEFAULT_PASSWORD: xzgfkbvvutjadcui
+
+volumes:
+  staticfiles:
+  dbdata:
+  redis_data:

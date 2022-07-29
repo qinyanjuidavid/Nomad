@@ -11,13 +11,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def send_activation_mail(user_data, request):
-    user = User.objects.get(email=user_data['email'])
+    user = User.objects.get(email=user_data["email"])
     current_site = get_current_site(request).domain
     mail_subject = "Verify Your Account."
     to_mail = user.email
     token = RefreshToken.for_user(user).access_token
-    relativeLink = reverse('api:email-verify')
-    absurl = "http://"+current_site+relativeLink+"?token="+str(token)
+    relativeLink = reverse("api:email-verify")
+    absurl = "http://" + current_site + relativeLink + "?token=" + str(token)
     message = f"""
 Welcome To Nomad,
 
@@ -28,11 +28,7 @@ Click on the link below to verify your account,
 This is an automatically generated email. Please do not reply.
 @{datetime.date.today().year} Nomad | Nairobi town
     """
-    email = EmailMessage(
-        subject=mail_subject,
-        body=message,
-        to=[to_mail]
-    )
+    email = EmailMessage(subject=mail_subject, body=message, to=[to_mail])
     email.send()
 
 
@@ -41,11 +37,10 @@ def send_password_reset_email(user_data, request):
     token = PasswordResetTokenGenerator().make_token(user_data)
     to_mail = user_data.email
     current_site = get_current_site(request).domain
-    relative_link = reverse("api:password-reset-confirm",
-                            kwargs={'uidb64': uidb64,
-                                    'token': token}
-                            )
-    absurl = "http://"+current_site+relative_link
+    relative_link = reverse(
+        "api:password-reset-confirm", kwargs={"uidb64": uidb64, "token": token}
+    )
+    absurl = "http://" + current_site + relative_link
     mail_subject = "Reset Your Password"
     message = f"""
 Hello {user_data.username},
@@ -59,9 +54,5 @@ and paste it in a new browsers tab.
 
 Thanks, Nomad Team.
     """
-    email = EmailMessage(
-        subject=mail_subject,
-        body=message,
-        to=[to_mail]
-    )
+    email = EmailMessage(subject=mail_subject, body=message, to=[to_mail])
     email.send()

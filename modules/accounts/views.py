@@ -12,19 +12,25 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.encoding import (DjangoUnicodeDecodeError, force_bytes,
-                                   force_str, smart_bytes,
-                                   smart_str)
+from django.utils.encoding import (
+    DjangoUnicodeDecodeError,
+    force_bytes,
+    force_str,
+    smart_bytes,
+    smart_str,
+)
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView
 from modules.accounts.models import Administrator, Nomad, User
 from modules.accounts.permissions import IsAdministrator, IsNomad
-from modules.accounts.send_mail import (send_activation_mail,
-                                        send_password_reset_email)
-from modules.accounts.serializers import (LoginSerializer, RegisterSerializer,
-                                          ResetPasswordEmailRequestSerializer,
-                                          SetNewPasswordSerializer)
+from modules.accounts.send_mail import send_activation_mail, send_password_reset_email
+from modules.accounts.serializers import (
+    LoginSerializer,
+    RegisterSerializer,
+    ResetPasswordEmailRequestSerializer,
+    SetNewPasswordSerializer,
+)
 from rest_framework import generics, serializers, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed
@@ -33,14 +39,13 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 class LoginViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
-    http_method_names = ['post']
+    http_method_names = ["post"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -54,7 +59,7 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
 class NomadRegistrationViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = RegisterSerializer
     permission_classes = (AllowAny,)
-    http_method_names = ['post']
+    http_method_names = ["post"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -68,20 +73,20 @@ class NomadRegistrationViewSet(ModelViewSet, TokenObtainPairView):
         send_activation_mail(user_data, request)
 
         refresh = RefreshToken.for_user(user)
-        res = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-        return Response({
-            "user": serializer.data,
-            "refresh": res['refresh'],
-                        "token": res['access']
-                        }, status=status.HTTP_201_CREATED)
+        res = {"refresh": str(refresh), "access": str(refresh.access_token)}
+        return Response(
+            {
+                "user": serializer.data,
+                "refresh": res["refresh"],
+                "token": res["access"],
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
     permission_classes = (AllowAny,)
-    http_method_names = ['post']
+    http_method_names = ["post"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -97,7 +102,9 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
 class AdminRegistrationViewSet(ModelViewSet):
     serializer_class = RegisterSerializer
     permission_classes = [IsAuthenticated, IsAdministrator]
-    http_method_names = ['post', ]
+    http_method_names = [
+        "post",
+    ]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -111,44 +118,39 @@ class AdminRegistrationViewSet(ModelViewSet):
         send_activation_mail(user_data, request)
 
         refresh = RefreshToken.for_user(user)
-        res = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-        return Response({
-            "user": serializer.data,
-            "refresh": res['refresh'],
-                        "token": res['access']
-                        }, status=status.HTTP_201_CREATED)
+        res = {"refresh": str(refresh), "access": str(refresh.access_token)}
+        return Response(
+            {
+                "user": serializer.data,
+                "refresh": res["refresh"],
+                "token": res["access"],
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 def VerifyEmail(request):
     token = request.GET.get("token")
     try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms="HS256"
-        )
-        user = User.objects.get(id=payload['user_id'])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
+        user = User.objects.get(id=payload["user_id"])
         if not user.is_active:
             user.is_active = True
             user.save()
-            messages.success(request,
-                             "Account was Successfully Verified.")
+            messages.success(request, "Account was Successfully Verified.")
         else:
-            messages.info(request,
-                          """Your Account has already been activated.
+            messages.info(
+                request,
+                """Your Account has already been activated.
                           You can now login and 
                           write the Tasks you do.
-                        """)
+                        """,
+            )
     except jwt.ExpiredSignatureError as identifier:
-        messages.warning(request,
-                         "The Activation Link Expired!")
+        messages.warning(request, "The Activation Link Expired!")
     except jwt.exceptions.DecodeError as identifier:
         messages.warning(request, "Invalid Activation Link!")
-    context = {
-    }
+    context = {}
     return render(request, "accounts/verify.html", context)
 
 
@@ -158,7 +160,9 @@ def VerifyEmail(request):
 class RequestPasswordResetEmail(ModelViewSet):
     serializer_class = ResetPasswordEmailRequestSerializer
     permission_classes = (AllowAny,)
-    http_method_names = ["post", ]
+    http_method_names = [
+        "post",
+    ]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -171,7 +175,7 @@ class RequestPasswordResetEmail(ModelViewSet):
                 send_password_reset_email(user, request)
             return Response(
                 {"Success": "We have emailed you a link to reset your password"},
-                status=status.HTTP_200_OK
+                status=status.HTTP_200_OK,
             )
         return Response({"Success": "Password Reset Link was sent to your email."})
 
@@ -183,12 +187,13 @@ def PasswordResetTokenCheck(request, uidb64, token):
         if not PasswordResetTokenGenerator().check_token(user, token):
             messages.info(
                 request,
-                "Password Reset link is no longer valid, Please request a new one.")
+                "Password Reset link is no longer valid, Please request a new one.",
+            )
     except DjangoUnicodeDecodeError as identifier:
         if not PasswordResetTokenGenerator().check_token(user, token):
             messages.info(
-                request,
-                "Password is no longer valid, Please request a new one.")
+                request, "Password is no longer valid, Please request a new one."
+            )
     context = {
         "uidb64": uidb64,
         "token": token,
@@ -199,7 +204,7 @@ def PasswordResetTokenCheck(request, uidb64, token):
 class SetNewPasswordAPIView(ModelViewSet):
     serializer_class = SetNewPasswordSerializer
     permission_classes = (AllowAny,)
-    http_method_names = ['post', "get"]
+    http_method_names = ["post", "get"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -210,11 +215,8 @@ class SetNewPasswordAPIView(ModelViewSet):
             password_confirmation = request.data["password_confirmation"]
             token = request.data["token"]
             uidb64 = request.data["uidb64"]
-            if (password and password_confirmation
-                    and password != password_confirmation):
-                raise serializers.ValidationError(
-                    {"Error": ("Passwords don\'t match!")}
-                )
+            if password and password_confirmation and password != password_confirmation:
+                raise serializers.ValidationError({"Error": ("Passwords don't match!")})
             else:
                 id = force_str(urlsafe_base64_decode(uidb64))
                 user = User.objects.get(id=id)
@@ -228,10 +230,11 @@ class SetNewPasswordAPIView(ModelViewSet):
                     user.save()
                     return Response(
                         {"success": "Password reset successful"},
-                        status=status.HTTP_201_CREATED)
+                        status=status.HTTP_201_CREATED,
+                    )
         except Exception as e:
-            raise AuthenticationFailed(
-                "The Reset Link is Invalid!", 401)
+            raise AuthenticationFailed("The Reset Link is Invalid!", 401)
         return Response(serializer.data)
+
 
 # Profiles
