@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "modules.accounts.apps.AccountsConfig",
     "modules.pastoral.apps.PastoralConfig",
     "modules.api.apps.ApiConfig",
+    "modules.management.apps.ManagementConfig",
 ]
 
 PHONENUMBER_DB_FORMAT = "NATIONAL"
